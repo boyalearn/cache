@@ -1,9 +1,4 @@
-package com.smart.cache.annotation;/*
- * Copyright © Huawei Technologies Co., Ltd. 2018-2019. All rights reserved.
- * Description: Cache
- * Author: zWX827285
- * Create: 2020/7/22
- */
+package com.smart.cache.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
