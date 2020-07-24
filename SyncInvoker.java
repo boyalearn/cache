@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+
 public class SyncInvoker implements Invoker {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(SyncInvoker.class);
@@ -56,9 +57,11 @@ public class SyncInvoker implements Invoker {
     public Object invoker(Method method, Object bean, Object[] args) throws Throwable {
         Lock lock = getLock(method);
         lock.lock();
-
         try {
-            return method.invoke(bean, args);
+            LOGGER.debug("invoker real method start");
+            Object result=method.invoke(bean, args);
+            LOGGER.debug("invoker real method ended");
+            return result;
         } finally {
             lock.unlock();
         }
@@ -98,9 +101,7 @@ public class SyncInvoker implements Invoker {
     }
 
     private Object doProcess(ProceedingJoinPoint pjp, Object[] args) throws Throwable {
-        Object result = pjp.proceed(pjp.getArgs());
-        LOGGER.debug("cache hit failed. cache data is {}", result);
-
+        LOGGER.debug("invoker real method start");
         CacheMethodInfo methodInfo = new CacheMethodInfo();
         Object bean = pjp.getThis();
         Method method = getMethod(pjp);
@@ -109,7 +110,8 @@ public class SyncInvoker implements Invoker {
         methodInfo.setIntervalTime(cacheAnn.interval());
         methodInfo.setMethod(method);
         methodInfo.setBean(bean);
-
+        Object result = pjp.proceed(args);
+        LOGGER.debug("invoker real method end");
         CacheData cacheData = new CacheData(args, System.currentTimeMillis(), System.currentTimeMillis(),
             result, methodInfo);
         cacheManager.addCacheData(method, args, cacheData);
