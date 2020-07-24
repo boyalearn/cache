@@ -53,12 +53,12 @@ public class SyncInvoker implements Invoker {
     }
 
     @Override
-    public Object invoker(Method method, Object bean, Object[] args) throws Throwable {
-        Lock lock = getLock(method);
+    public Object invoker(ProceedingJoinPoint processorPoint, Object[] args) throws Throwable {
+        Lock lock = getLock(getMethod(processorPoint));
         lock.lock();
         try {
             LOGGER.debug("invoker real method start");
-            Object result = method.invoke(bean, args);
+            Object result = processorPoint.proceed(args);
             LOGGER.debug("invoker real method ended");
             return result;
         } finally {
@@ -85,14 +85,10 @@ public class SyncInvoker implements Invoker {
         return signature.getMethod();
     }
 
-    public static String getMethodName(ProceedingJoinPoint pjp) {
-        MethodSignature signature = (MethodSignature) pjp.getSignature();
-        return signature.getMethod().toString();
-    }
-
     private Object doCacheData(CacheData cacheData, ProceedingJoinPoint pjp, Object[] args) throws Throwable {
         if (cacheValid(cacheData)) {
             LOGGER.debug("cache hit. cache data is {}", cacheData.getValue());
+            cacheData.setCallTime(System.currentTimeMillis());
             return cacheData.getValue();
         } else {
             return doProcess(pjp, args);
@@ -112,7 +108,7 @@ public class SyncInvoker implements Invoker {
         Object result = pjp.proceed(args);
         LOGGER.debug("invoker real method end");
         CacheData cacheData = new CacheData(args, System.currentTimeMillis(), System.currentTimeMillis(),
-                result, methodInfo);
+                result, methodInfo, pjp);
         cacheManager.addCacheData(method, args, cacheData);
 
         CacheScheduler.execute(cacheData);

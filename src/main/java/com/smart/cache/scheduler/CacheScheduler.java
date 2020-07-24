@@ -40,8 +40,8 @@ public class CacheScheduler {
                 continue;
             }
 
-            LOGGER.info("update data");
-            Object value = invoker.invoker(cacheData.getMethod(), cacheData.getBean(), cacheData.getArgs());
+            LOGGER.debug("update data");
+            Object value = invoker.invoker(cacheData.getProcessorPoint(), cacheData.getArgs());
             cacheData.setValue(value);
             cacheData.setUpdateTime(System.currentTimeMillis());
             task.setTime(System.currentTimeMillis() + task.getCacheData().getIntervalTime());

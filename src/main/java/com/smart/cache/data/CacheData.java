@@ -1,6 +1,7 @@
 package com.smart.cache.data;
 
 import com.smart.cache.CacheMethodInfo;
+import org.aspectj.lang.ProceedingJoinPoint;
 
 import java.lang.reflect.Method;
 
@@ -14,6 +15,8 @@ public class CacheData {
     private Object value;
 
     private CacheMethodInfo cacheMethodInfo;
+
+    private ProceedingJoinPoint processorPoint;
 
     public Object[] getArgs() {
         return args;
@@ -55,13 +58,13 @@ public class CacheData {
         this.cacheMethodInfo = cacheMethodInfo;
     }
 
-    public CacheData(Object[] args, Long updateTime, Long callTime, Object value,
-        CacheMethodInfo cacheMethodInfo) {
+    public CacheData(Object[] args, Long updateTime, Long callTime, Object value, CacheMethodInfo cacheMethodInfo, ProceedingJoinPoint processorPoint) {
         this.args = args;
         this.updateTime = updateTime;
         this.callTime = callTime;
         this.value = value;
         this.cacheMethodInfo = cacheMethodInfo;
+        this.processorPoint = processorPoint;
     }
 
     public Long getExpiredTime() {
@@ -78,5 +81,13 @@ public class CacheData {
 
     public Object getBean() {
         return cacheMethodInfo.getBean();
+    }
+
+    public ProceedingJoinPoint getProcessorPoint() {
+        return processorPoint;
+    }
+
+    public void setProcessorPoint(ProceedingJoinPoint processorPoint) {
+        this.processorPoint = processorPoint;
     }
 }

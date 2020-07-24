@@ -6,13 +6,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class Service {
-    @Cache(interval = 20000,expired = 40*1000)
+    @Cache(interval = 5000,expired = 10*1000)
     public String getContext(String context){
-        try {
-            Thread.sleep(3*1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         return "my context";
     }
 }
