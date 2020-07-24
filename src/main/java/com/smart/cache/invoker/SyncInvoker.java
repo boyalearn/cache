@@ -5,7 +5,6 @@ import com.smart.cache.CacheMethodInfo;
 import com.smart.cache.annotation.Cache;
 import com.smart.cache.data.CacheData;
 import com.smart.cache.scheduler.CacheScheduler;
-
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
@@ -59,7 +58,7 @@ public class SyncInvoker implements Invoker {
         lock.lock();
         try {
             LOGGER.debug("invoker real method start");
-            Object result=method.invoke(bean, args);
+            Object result = method.invoke(bean, args);
             LOGGER.debug("invoker real method ended");
             return result;
         } finally {
@@ -113,7 +112,7 @@ public class SyncInvoker implements Invoker {
         Object result = pjp.proceed(args);
         LOGGER.debug("invoker real method end");
         CacheData cacheData = new CacheData(args, System.currentTimeMillis(), System.currentTimeMillis(),
-            result, methodInfo);
+                result, methodInfo);
         cacheManager.addCacheData(method, args, cacheData);
 
         CacheScheduler.execute(cacheData);

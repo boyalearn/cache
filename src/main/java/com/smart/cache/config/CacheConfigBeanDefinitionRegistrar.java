@@ -7,7 +7,6 @@ import org.springframework.core.type.AnnotationMetadata;
 
 
 public class CacheConfigBeanDefinitionRegistrar implements ImportBeanDefinitionRegistrar {
-    @Override
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
         RootBeanDefinition rootBeanDefinition = new RootBeanDefinition(SmartCacheConfiguration.class);
         registry.registerBeanDefinition("SmartCacheConfiguration", rootBeanDefinition);

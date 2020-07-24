@@ -7,7 +7,7 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Root level="debug">
+        <Root level="DEBUG">
             <AppenderRef ref="Console"/>
         </Root>
         <Logger name="TRACE_ALL" level="trace" additivity="false">

@@ -1,12 +1,9 @@
 package com.smart.cache.scheduler;
 
-import com.smart.cache.CacheMethodInfo;
 import com.smart.cache.data.CacheData;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Method;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 
