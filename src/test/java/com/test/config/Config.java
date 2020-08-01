@@ -1,6 +1,6 @@
 package com.test.config;
 
-import com.smart.cache.config.EnableSmartCache;
+import com.smart.cache.annotation.EnableSmartCache;
 
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;

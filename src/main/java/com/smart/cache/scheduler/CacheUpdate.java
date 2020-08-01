@@ -1,23 +1,21 @@
 package com.smart.cache.scheduler;
 
-import com.smart.cache.data.CacheData;
+import com.smart.cache.entity.CallInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 
-public class CacheUpdateTask implements Delayed {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(CacheUpdateTask.class);
+public class CacheUpdate implements Delayed {
 
     private long time;
 
-    private CacheData cacheData;
+    private CallInfo callInfo;
 
-    public CacheUpdateTask(long time, CacheData cacheData) {
+    public CacheUpdate(long time, CallInfo callInfo) {
         this.time = time;
-        this.cacheData = cacheData;
+        this.callInfo = callInfo;
     }
 
     @Override
@@ -27,7 +25,7 @@ public class CacheUpdateTask implements Delayed {
 
     @Override
     public int compareTo(Delayed o) {
-        CacheUpdateTask item = (CacheUpdateTask) o;
+        CacheUpdate item = (CacheUpdate) o;
         long diff = this.time - item.time;
         if (diff <= 0) {
             return -1;
@@ -39,8 +37,7 @@ public class CacheUpdateTask implements Delayed {
         this.time = time;
     }
 
-
-    public CacheData getCacheData() {
-        return cacheData;
+    public CallInfo getCallInfo() {
+        return callInfo;
     }
 }

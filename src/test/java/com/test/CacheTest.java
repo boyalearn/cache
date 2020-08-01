@@ -16,11 +16,11 @@ public class CacheTest {
         LOGGER.info("start");
         for (; ; ) {
             try {
-                Thread.sleep(2000);
+                Thread.sleep(8000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            service.getContext("");
+            System.out.println("call:"+service.getContext(""));
         }
     }
 }
