@@ -1,5 +1,6 @@
 package com.smart.cache.data;
 
+import com.smart.cache.serialize.SerializeUtil;
 import org.ehcache.CacheManager;
 import org.ehcache.config.CacheConfiguration;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
@@ -51,12 +52,12 @@ public class Ehcache implements Cache, DisposableBean {
 
     @Override
     public void put(String key, Object value) {
-        this.cache.put(key, value.toString());
+        this.cache.put(key, SerializeUtil.encode(value));
     }
 
     @Override
-    public Object get(String key) {
-        return cache.get(key);
+    public Object get(String key, Class<?> clazz) {
+        return SerializeUtil.decode(cache.get(key), clazz);
     }
 
     @Override

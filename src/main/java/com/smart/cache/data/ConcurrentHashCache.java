@@ -12,7 +12,7 @@ public class ConcurrentHashCache implements Cache {
     }
 
     @Override
-    public Object get(String key) {
+    public Object get(String key, Class<?> clazz) {
         return cache.get(key);
     }
 

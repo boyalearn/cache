@@ -89,13 +89,13 @@ public class CacheInvoker implements Invoker {
 
     private Object call(CallInfo callInfo, InvokerCacheKey cacheKey, CallMethod callMethod, Object[] args) throws Throwable {
         callInfo.setCallTime(System.currentTimeMillis());
-        Object data = cacheManager.getCache().get(new InvokerCacheKey(args, callMethod.getMethod()).toString());
+        Object data = cacheManager.getCache().get(new InvokerCacheKey(args, callMethod.getMethod()).toString(), callMethod.getMethod().getReturnType());
         if (null == data) {
             Lock lock = getLock(new InvokerCacheKey(args, callMethod.getMethod()));
             lock.lock();
 
             try {
-                data = cacheManager.getCache().get(cacheKey.toString());
+                data = cacheManager.getCache().get(cacheKey.toString(),callMethod.getMethod().getReturnType());
                 if (null == data) {
                     data = this.invoker.invoker(callMethod, args);
                     cacheManager.getCache().put(cacheKey.toString(), data);

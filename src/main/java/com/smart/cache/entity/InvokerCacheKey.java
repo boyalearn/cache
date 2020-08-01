@@ -1,5 +1,7 @@
 package com.smart.cache.entity;
 
+import com.smart.cache.serialize.SerializeUtil;
+
 import java.lang.reflect.Method;
 
 public class InvokerCacheKey {
@@ -33,12 +35,6 @@ public class InvokerCacheKey {
 
     @Override
     public String toString() {
-        StringBuffer sb = new StringBuffer("InvokerCacheKey{args={");
-        for (Object arg : args) {
-            sb.append(arg.toString() + ",");
-        }
-        sb.replace(sb.length() - 1, sb.length(), "}");
-        sb.append(",method=" + method.toString() + "}");
-        return sb.toString();
+        return SerializeUtil.encode(this.args) + SerializeUtil.encode(method.toString());
     }
 }
