@@ -6,5 +6,5 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import java.lang.reflect.Method;
 
 public interface Invoker {
-    Object invoker(CallMethod callMethod, Object[] args) throws Throwable;
+    Object invoker(CallMethod callMethod, Object[] args,Object annotation) throws Throwable;
 }

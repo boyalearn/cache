@@ -8,7 +8,7 @@ public class DirectInvoker implements Invoker {
     private final static Logger LOGGER = LoggerFactory.getLogger(DirectInvoker.class);
 
     @Override
-    public Object invoker(CallMethod callMethod, Object[] args) throws Throwable {
+    public Object invoker(CallMethod callMethod, Object[] args, Object annotation) throws Throwable {
         LOGGER.debug("direct invoker");
         return callMethod.invoker(args);
     }

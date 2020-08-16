@@ -25,14 +25,11 @@ public class CacheManager implements ApplicationListener<ContextRefreshedEvent> 
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    cacheScheduler.start();
-                } catch (Throwable throwable) {
-                    throwable.printStackTrace();
-                }
+        new Thread(() -> {
+            try {
+                cacheScheduler.start();
+            } catch (Throwable throwable) {
+                throwable.printStackTrace();
             }
         }).start();
     }

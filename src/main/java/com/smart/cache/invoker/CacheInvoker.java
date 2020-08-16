@@ -1,9 +1,11 @@
 package com.smart.cache.invoker;
 
 import com.smart.cache.CacheManager;
+import com.smart.cache.annotation.Cache;
 import com.smart.cache.entity.CallInfo;
 import com.smart.cache.entity.CallMethod;
 import com.smart.cache.entity.InvokerCacheKey;
+import com.smart.cache.scheduler.CacheScheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,32 +46,36 @@ public class CacheInvoker implements Invoker {
     }
 
     @Override
-    public Object invoker(CallMethod callMethod, Object[] args) throws Throwable {
+    public Object invoker(CallMethod callMethod, Object[] args, Object annotation) throws Throwable {
         InvokerCacheKey cacheKey = new InvokerCacheKey(args, callMethod.getMethod());
-        CallInfo callInfo = callMap.get(cacheKey);
-        if (null == callInfo) {
-            Lock lock = getLock(new InvokerCacheKey(args, callMethod.getMethod()));
-            lock.lock();
-            try {
-                callInfo = callMap.get(new InvokerCacheKey(args, callMethod.getMethod()));
-                if (null == callInfo) {
-                    callInfo = new CallInfo(args, callMethod);
-                    callInfo.setCallTime(System.currentTimeMillis());
-                    callInfo.setUpdateTime(System.currentTimeMillis());
-                    cacheManager.getCacheScheduler().execute(callInfo);
-                    callMap.put(cacheKey, callInfo);
+        if (annotation instanceof Cache) {
+            CallInfo callInfo = callMap.get(cacheKey);
+            if (null == callInfo) {
+                Lock lock = getLock(new InvokerCacheKey(args, callMethod.getMethod()));
+                lock.lock();
+                try {
+                    callInfo = callMap.get(new InvokerCacheKey(args, callMethod.getMethod()));
+                    if (null == callInfo) {
+                        callInfo = new CallInfo(args, callMethod);
+                        callInfo.setCallTime(System.currentTimeMillis());
+                        callInfo.setUpdateTime(System.currentTimeMillis());
+                        cacheManager.getCacheScheduler().execute(callInfo);
+                        callMap.put(cacheKey, callInfo);
+                    }
+                } finally {
+                    lock.unlock();
                 }
-            } finally {
-                lock.unlock();
             }
-        }
 
-        if (System.currentTimeMillis() - callInfo.getCallTime() > callInfo.getExpireTime()) {
-            LOGGER.error("method {} cache data expired", callInfo.getMethod());
-            return callDirect(callInfo, cacheKey, callMethod, args);
+            if (System.currentTimeMillis() - callInfo.getCallTime() > callInfo.getExpireTime()) {
+                LOGGER.error("method {} cache data expired", callInfo.getMethod());
+                return callDirect(callInfo, cacheKey, callMethod, args);
 
+            }
+            return call(callInfo, cacheKey, callMethod, args);
+        } else {
+            return callAsync(cacheKey, callMethod, args);
         }
-        return call(callInfo, cacheKey, callMethod, args);
 
 
     }
@@ -79,7 +85,7 @@ public class CacheInvoker implements Invoker {
         Lock lock = getLock(new InvokerCacheKey(args, callMethod.getMethod()));
         lock.lock();
         try {
-            Object data = this.invoker.invoker(callMethod, args);
+            Object data = this.invoker.invoker(callMethod, args, null);
             cacheManager.getCache().put(cacheKey.toString(), data);
             return data;
         } finally {
@@ -89,15 +95,29 @@ public class CacheInvoker implements Invoker {
 
     private Object call(CallInfo callInfo, InvokerCacheKey cacheKey, CallMethod callMethod, Object[] args) throws Throwable {
         callInfo.setCallTime(System.currentTimeMillis());
+        return cacheLogic(cacheKey, callMethod, args);
+    }
+
+    private Object callAsync(InvokerCacheKey cacheKey, CallMethod callMethod, Object[] args) throws Throwable {
+        CacheScheduler.execute(()-> {
+            try {
+                doAsync(cacheKey, callMethod, args);
+            } catch (Throwable throwable) {
+                throwable.printStackTrace();
+            }
+        });
+        return cacheLogic(cacheKey, callMethod, args);
+    }
+
+    private Object cacheLogic(InvokerCacheKey cacheKey, CallMethod callMethod, Object[] args) throws Throwable {
         Object data = cacheManager.getCache().get(new InvokerCacheKey(args, callMethod.getMethod()).toString(), callMethod.getMethod().getReturnType());
         if (null == data) {
             Lock lock = getLock(new InvokerCacheKey(args, callMethod.getMethod()));
             lock.lock();
-
             try {
-                data = cacheManager.getCache().get(cacheKey.toString(),callMethod.getMethod().getReturnType());
+                data = cacheManager.getCache().get(cacheKey.toString(), callMethod.getMethod().getReturnType());
                 if (null == data) {
-                    data = this.invoker.invoker(callMethod, args);
+                    data = this.invoker.invoker(callMethod, args, null);
                     cacheManager.getCache().put(cacheKey.toString(), data);
                     return data;
                 }
@@ -106,8 +126,23 @@ public class CacheInvoker implements Invoker {
             } finally {
                 lock.unlock();
             }
+
         }
         LOGGER.debug("cache hit, cache data is {}", data.toString());
         return data;
+    }
+
+    public void doAsync(InvokerCacheKey cacheKey, CallMethod callMethod, Object[] args) throws Throwable {
+        Lock lock = getLock(new InvokerCacheKey(args, callMethod.getMethod()));
+        boolean isLock = lock.tryLock();
+        if (isLock) {
+            try {
+                Object data = this.invoker.invoker(callMethod, args, null);
+                cacheManager.getCache().put(cacheKey.toString(), data);
+                LOGGER.debug("cache hit, cache data is {}", data.toString());
+            } finally {
+                lock.unlock();
+            }
+        }
     }
 }

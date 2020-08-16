@@ -14,13 +14,14 @@ public class CacheTest {
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
         Service service = context.getBean(Service.class);
         LOGGER.info("start");
+        service.getClass().getName();
         for (; ; ) {
             try {
-                Thread.sleep(8000);
+                Thread.sleep(20);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            System.out.println("call:"+service.getContext(""));
+            System.out.println("call:"+service.getContext());
         }
     }
 }

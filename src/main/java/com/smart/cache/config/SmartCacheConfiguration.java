@@ -3,6 +3,7 @@ package com.smart.cache.config;
 import com.smart.cache.CacheManager;
 import com.smart.cache.aspect.CacheMethodAspect;
 import com.smart.cache.data.Cache;
+import com.smart.cache.data.ConcurrentHashCache;
 import com.smart.cache.data.Ehcache;
 import com.smart.cache.invoker.CacheInvoker;
 import com.smart.cache.invoker.DirectInvoker;
@@ -35,7 +36,7 @@ public class SmartCacheConfiguration {
     @Bean
     @Conditional(value = OnNoCacheCondition.class)
     public Cache cache() {
-        return new Ehcache();
+        return new ConcurrentHashCache();
     }
 
     @Bean
