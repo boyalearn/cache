@@ -1,7 +1,7 @@
 package cache;
 
-import com.smart.cache.data.Cache;
-import com.smart.cache.scheduler.CacheScheduler;
+import cache.data.Cache;
+import cache.scheduler.CacheScheduler;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 

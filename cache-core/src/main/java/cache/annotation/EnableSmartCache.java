@@ -1,7 +1,7 @@
 
 package cache.annotation;
 
-import com.smart.cache.config.CacheConfigBeanDefinitionRegistrar;
+import cache.config.CacheConfigBeanDefinitionRegistrar;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Import;
 

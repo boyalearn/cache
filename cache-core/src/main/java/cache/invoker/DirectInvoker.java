@@ -1,6 +1,6 @@
 package cache.invoker;
 
-import com.smart.cache.entity.CallMethod;
+import cache.entity.CallMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,10 +1,9 @@
 package cache.config;
 
 import cache.CacheManager;
-import com.smart.cache.aspect.CacheMethodAspect;
-import com.smart.cache.data.Cache;
-import com.smart.cache.data.ConcurrentHashCache;
-import com.smart.cache.data.Ehcache;
+import cache.aspect.CacheMethodAspect;
+import cache.data.Cache;
+import cache.data.ConcurrentHashCache;
 import cache.invoker.CacheInvoker;
 import cache.invoker.DirectInvoker;
 import cache.invoker.Invoker;

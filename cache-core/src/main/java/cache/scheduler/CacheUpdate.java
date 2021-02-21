@@ -1,8 +1,6 @@
 package cache.scheduler;
 
-import com.smart.cache.entity.CallInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import cache.entity.CallInfo;
 
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
