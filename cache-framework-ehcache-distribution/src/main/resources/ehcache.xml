@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ehcache>
+    <cacheManagerPeerProviderFactory
+            class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
+            properties="peerDiscovery=automatic, multicastGroupAddress=230.0.0.1,
+            multicastGroupPort=4446, timeToLive=32"/>
+
+    <cacheManagerPeerListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"
+            properties="port=40001,socketTimeoutMillis=2000"/>
+
+    <!--demo 缓存-->
+    <cache name="auto_cache" maxElementsInMemory="1000" eternal="false"
+           timeToIdleSeconds="500" timeToLiveSeconds="500" overflowToDisk="true"
+           diskSpoolBufferSizeMB="30" maxElementsOnDisk="1000000"
+           diskPersistent="false" diskExpiryThreadIntervalSeconds="120"
+           memoryStoreEvictionPolicy="LRU">
+        <cacheEventListenerFactory
+                class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+                properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true,
+                            replicateUpdatesViaCopy=true, replicateRemovals=true,asynchronousReplicationIntervalMillis=1000"/>
+        <!--用于初始化缓存，以及自动设置-->
+        <bootstrapCacheLoaderFactory
+                class="net.sf.ehcache.distribution.RMIBootstrapCacheLoaderFactory"/>
+    </cache>
+</ehcache>
