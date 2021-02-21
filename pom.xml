@@ -15,6 +15,7 @@
         <module>cache-framework-cacheonix</module>
         <module>cache-framework-jboss</module>
         <module>cache-framework-voldemort</module>
+        <module>cache-framework-guava</module>
     </modules>
 
     <build>
