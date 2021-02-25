@@ -16,6 +16,7 @@
         <module>cache-framework-jboss</module>
         <module>cache-framework-voldemort</module>
         <module>cache-framework-guava</module>
+        <module>cache-boot-starter</module>
     </modules>
 
     <build>
