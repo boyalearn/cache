@@ -7,7 +7,7 @@ import cache.data.ConcurrentHashCache;
 import cache.invoker.CacheInvoker;
 import cache.invoker.DirectInvoker;
 import cache.invoker.Invoker;
-import cache.scheduler.CacheScheduler;
+import com.cache.core.crontab.CacheScheduler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;

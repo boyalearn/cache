@@ -1,9 +1,9 @@
 package com.cache.core.build;
 
 import com.cache.core.Cache;
+import com.cache.core.CallbackCache;
 import com.cache.core.Interceptor;
 import com.cache.core.InvokeChain;
-import com.cache.core.cache.EhCache;
 import com.cache.core.chain.CacheInvokeChain;
 
 import java.lang.reflect.InvocationHandler;
@@ -16,7 +16,7 @@ public class CacheBuilder {
 
 
     public static class Builder {
-        private Cache cache = new EhCache();
+        private Cache cache;
         private List<Interceptor> interceptors = new ArrayList<>();
 
         public Builder cache(Cache cache) {
@@ -29,11 +29,19 @@ public class CacheBuilder {
             return this;
         }
 
-        public Cache builder() {
+        public Cache build() {
 
-            CacheInvokeChain cacheInvokeChain=new CacheInvokeChain(interceptors);
+            CacheInvokeChain cacheInvokeChain = new CacheInvokeChain(interceptors);
             SimpleCache simpleCache = new SimpleCache(cache, cacheInvokeChain);
-            return (Cache) Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[]{Cache.class}, simpleCache);
+            Class<?>[] interfaces = cache.getClass().getInterfaces();
+            for(Class currentInterface :interfaces){
+                if(currentInterface == CallbackCache.class){
+                    return (CallbackCache) Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[]{CallbackCache.class}, simpleCache);
+                }else if(currentInterface == Cache.class){
+                    return (Cache) Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[]{Cache.class}, simpleCache);
+                }
+            }
+            return null;
         }
     }
 

@@ -19,7 +19,7 @@ public class BaseTest {
         List<Interceptor> interceptors=new ArrayList<>();
         interceptors.add(new CacheInterceptor());
         interceptors.add(new CachePreInterceptor());
-        cache= new CacheBuilder.Builder().cache(new EhCache()).interceptors(interceptors).builder();
+        cache= new CacheBuilder.Builder().interceptors(interceptors).build();
         cache.put("1","2");
     }
 
@@ -29,4 +29,6 @@ public class BaseTest {
         System.out.println(cache.get("1"));
         System.out.println("2".equals(cache.get(1)));
     }
+
+
 }

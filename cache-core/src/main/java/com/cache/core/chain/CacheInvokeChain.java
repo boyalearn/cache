@@ -8,7 +8,7 @@ import java.util.List;
 
 public class CacheInvokeChain implements InvokeChain {
 
-    private static final ThreadLocal<Integer> THREAD_LOCAL = new ThreadLocal<>();
+    private static final ThreadLocal<Integer> indexCount = new ThreadLocal<>();
 
     private int n = 0;
 
@@ -16,7 +16,7 @@ public class CacheInvokeChain implements InvokeChain {
 
     public CacheInvokeChain(List<Interceptor> interceptors) {
         this.interceptors = interceptors.toArray(new Interceptor[]{});
-        THREAD_LOCAL.set(0);
+        indexCount.set(0);
         n = interceptors.size();
     }
 
@@ -42,9 +42,9 @@ public class CacheInvokeChain implements InvokeChain {
         if (interceptors == null || interceptors.length == 0) {
             return null;
         }
-        int pos = THREAD_LOCAL.get();
+        int pos = indexCount.get();
         if (pos < n) {
-            THREAD_LOCAL.set(pos + 1);
+            indexCount.set(pos + 1);
             return interceptors[pos];
         }
         return null;
@@ -52,7 +52,7 @@ public class CacheInvokeChain implements InvokeChain {
 
     @Override
     public void reuse() {
-        THREAD_LOCAL.set(0);
+        indexCount.set(0);
     }
 
 }

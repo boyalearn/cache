@@ -1,7 +1,7 @@
 package cache;
 
 import cache.data.Cache;
-import cache.scheduler.CacheScheduler;
+import com.cache.core.crontab.CacheScheduler;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 

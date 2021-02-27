@@ -1,7 +1,7 @@
 package com.cache.core;
 
 @FunctionalInterface
-public interface Callback<V> {
+public interface Callback<K, V> {
 
-    V call();
+    V call(K key);
 }
