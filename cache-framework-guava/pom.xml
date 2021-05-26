@@ -12,11 +12,10 @@
     <artifactId>cache-framework-guava</artifactId>
 
     <dependencies>
-        <!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>22.0</version>
+            <version>[30.0-jre,)</version>
         </dependency>
     </dependencies>
 

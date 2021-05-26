@@ -1,7 +1,5 @@
 package com.cache.core.crontab;
 
-import cache.entity.CallInfo;
-
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 

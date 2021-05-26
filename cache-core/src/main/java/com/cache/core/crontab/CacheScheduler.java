@@ -1,9 +1,6 @@
 package com.cache.core.crontab;
 
-import cache.CacheManager;
-import cache.entity.CallInfo;
-import cache.entity.InvokerCacheKey;
-import cache.invoker.Invoker;
+import com.cache.core.CacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,12 +55,12 @@ public class CacheScheduler {
                     //判定过期的数据就不在更新了
                     if (System.currentTimeMillis() - callInfo.getCallTime() > callInfo.getExpireTime()) {
                         LOGGER.error("method {} cache data expired", callInfo.getMethod());
-                        cacheManager.getCache().remove(cacheKey.toString());
+                        //cacheManager.getCache("").remove(cacheKey.toString());
                         continue;
                     }
 
                     Object data = invoker.invoker(callInfo.getCallMethod(), callInfo.getArgs(), null);
-                    cacheManager.getCache().put(cacheKey.toString(), data);
+                    //cacheManager.getCache().put(cacheKey.toString(), data);
                     update.setTime(System.currentTimeMillis() + callInfo.getInterval());
                     callInfo.setUpdateTime(System.currentTimeMillis());
                     LOGGER.debug("interval call method {}", callInfo.getMethod());
