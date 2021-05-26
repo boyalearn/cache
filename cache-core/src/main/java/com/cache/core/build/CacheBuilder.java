@@ -30,7 +30,6 @@ public class CacheBuilder {
         }
 
         public Cache build() {
-
             CacheInvokeChain cacheInvokeChain = new CacheInvokeChain(interceptors);
             SimpleCache simpleCache = new SimpleCache(cache, cacheInvokeChain);
             Class<?>[] interfaces = cache.getClass().getInterfaces();

@@ -13,7 +13,7 @@ public class CronTaskInterceptor implements Interceptor {
     private CronTaskContext cronTaskContext = new CronTaskContext();
 
     @Override
-    public Object intercept(Cache cache, Method method, Object[] args, InvokeChain chain) {
+    public Object intercept(Object cache, Method method, Object[] args, InvokeChain chain) {
         Object value = chain.invoke(cache, method, args);
         if (args.length != 2 || !(args[1] instanceof Callback)) {
             return value;
@@ -22,7 +22,7 @@ public class CronTaskInterceptor implements Interceptor {
         return value;
     }
 
-    public void refresh(Cache cache, Object[] args) {
-        cache.put(args[0], ((Callback) args[1]).call(args[0]));
+    public void refresh(Object cache, Object[] args) {
+        ((Cache) cache).put(args[0], ((Callback) args[1]).call(args[0]));
     }
 }
