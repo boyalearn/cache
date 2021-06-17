@@ -1,5 +1,6 @@
 package com.cache.core.crontab;
 
+import com.cache.core.Cache;
 import lombok.Getter;
 
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -10,9 +11,12 @@ public class CronTaskManager {
 
     private CopyOnWriteArraySet<CallbackInfo> schedulerSet = new CopyOnWriteArraySet<>();
 
+    private Cache cache;
 
-    public CronTaskManager() {
-        new CacheScheduler(this).start();
+
+    public CronTaskManager(Cache cache) {
+        new CacheScheduler(this, cache).start();
+        this.cache = cache;
     }
 
     public boolean addCallbackInfo(CallbackInfo callbackInfo) {

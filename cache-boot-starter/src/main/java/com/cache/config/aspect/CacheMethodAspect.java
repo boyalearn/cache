@@ -1,6 +1,7 @@
 package com.cache.config.aspect;
 
 import com.cache.config.annotation.Cache;
+import com.cache.core.crontab.CacheKey;
 import com.cache.core.crontab.CallbackInfo;
 import com.cache.core.crontab.CronTaskManager;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -39,15 +40,24 @@ public class CacheMethodAspect implements ApplicationContextAware {
 
     private Object doInvoker(Method method, ProceedingJoinPoint pjp, Object[] args, Cache cache) throws Throwable {
         CronTaskManager manager = applicationContext.getBean(CronTaskManager.class);
-        CallbackInfo callbackInfo=new CallbackInfo();
+        CallbackInfo callbackInfo = new CallbackInfo();
         Object target = pjp.getTarget();
         callbackInfo.setObject(target);
         callbackInfo.setMethod(method);
         callbackInfo.setArgs(args);
         callbackInfo.setIntervalTime(cache.intervalTime());
         callbackInfo.setExpireTime(cache.expireTime());
+        CacheKey cacheKey = new CacheKey();
+        cacheKey.setArgs(args);
+        cacheKey.setMethod(method);
+        callbackInfo.setKey(cacheKey);
         manager.addCallbackInfo(callbackInfo);
-        return pjp.proceed(args);
+        Object result = manager.getCache().get(cacheKey);
+        if (null == result) {
+            result = pjp.proceed(args);
+            manager.getCache().put(cacheKey, result);
+        }
+        return result;
     }
 
     @Override

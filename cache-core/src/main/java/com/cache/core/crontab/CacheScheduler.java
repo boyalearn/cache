@@ -1,5 +1,6 @@
 package com.cache.core.crontab;
 
+import com.cache.core.Cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,9 +15,12 @@ public class CacheScheduler implements Runnable {
 
     private CronTaskManager cronTaskManager;
 
+    private Cache cache;
 
-    public CacheScheduler(CronTaskManager cronTaskManager) {
+
+    public CacheScheduler(CronTaskManager cronTaskManager, Cache cache) {
         this.cronTaskManager = cronTaskManager;
+        this.cache = cache;
     }
 
     public void start() {
@@ -35,7 +39,8 @@ public class CacheScheduler implements Runnable {
                 }
 
                 THREAD_POOL.submit(() -> {
-                    callbackInfo.call(callbackInfo.getKey());
+                    Object result = callbackInfo.call(callbackInfo.getKey());
+                    cache.put(callbackInfo.getKey(), result);
                     callbackInfo.setTime(System.currentTimeMillis() + callbackInfo.getIntervalTime());
                     callbackInfo.setUpdateTime(System.currentTimeMillis());
                     LOGGER.debug("interval call method {}", callbackInfo.getMethod());
