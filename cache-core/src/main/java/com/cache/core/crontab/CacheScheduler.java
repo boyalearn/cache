@@ -1,75 +1,49 @@
 package com.cache.core.crontab;
 
-import com.cache.core.CacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class CacheScheduler {
+public class CacheScheduler implements Runnable {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(CacheScheduler.class);
 
-    private final static MethodInvokerQueue QUEUE = new MethodInvokerQueue();
+    private static ExecutorService THREAD_POOL = Executors.newFixedThreadPool(3);
 
-    private static final ExecutorService THREAD_POOL = Executors.newFixedThreadPool(3);
+    private CronTaskManager cronTaskManager;
 
-    private CacheManager cacheManager;
 
-    private Invoker invoker;
-
-    public CacheScheduler(CacheManager cacheManager, Invoker invoker) {
-        this.cacheManager = cacheManager;
-        this.invoker = invoker;
+    public CacheScheduler(CronTaskManager cronTaskManager) {
+        this.cronTaskManager = cronTaskManager;
     }
 
-    public void execute(CallInfo callInfo) {
-        long time = System.currentTimeMillis() + callInfo.getInterval();
-        CacheUpdate task = new CacheUpdate(time, callInfo);
-        QUEUE.offer(task);
+    public void start() {
+        this.THREAD_POOL.submit(this);
     }
 
-    public void start() throws Throwable {
-        THREAD_POOL.execute(new UpdateTask(invoker));
-    }
-
-    public static void execute(Runnable runnable) {
-        THREAD_POOL.execute(runnable);
-    }
-
-    public class UpdateTask implements Runnable {
-        private Invoker invoker;
-
-        public UpdateTask(Invoker invoker) {
-            this.invoker = invoker;
-        }
-
-        @Override
-        public void run() {
-            try {
-                while (!Thread.interrupted()) {
-                    CacheUpdate update = (CacheUpdate) QUEUE.take();
-                    CallInfo callInfo = update.getCallInfo();
-                    InvokerCacheKey cacheKey = new InvokerCacheKey(callInfo.getArgs(), callInfo.getMethod());
-                    //判定过期的数据就不在更新了
-                    if (System.currentTimeMillis() - callInfo.getCallTime() > callInfo.getExpireTime()) {
-                        LOGGER.error("method {} cache data expired", callInfo.getMethod());
-                        //cacheManager.getCache("").remove(cacheKey.toString());
-                        continue;
-                    }
-
-                    Object data = invoker.invoker(callInfo.getCallMethod(), callInfo.getArgs(), null);
-                    //cacheManager.getCache().put(cacheKey.toString(), data);
-                    update.setTime(System.currentTimeMillis() + callInfo.getInterval());
-                    callInfo.setUpdateTime(System.currentTimeMillis());
-                    LOGGER.debug("interval call method {}", callInfo.getMethod());
-                    QUEUE.offer(update);
+    @Override
+    public void run() {
+        try {
+            while (!Thread.interrupted()) {
+                CallbackInfo callbackInfo = (CallbackInfo) cronTaskManager.getQueue().take();
+                //判定过期的数据就不在更新了
+                if (System.currentTimeMillis() - callbackInfo.getCallTime() > callbackInfo.getExpireTime()) {
+                    LOGGER.error("method {} cache data expired", callbackInfo.getMethod());
+                    continue;
                 }
-            } catch (Throwable e) {
-                LOGGER.error(" call method exception:", e.getMessage());
-            }
 
+                THREAD_POOL.submit(() -> {
+                    callbackInfo.call(callbackInfo.getKey());
+                    callbackInfo.setTime(System.currentTimeMillis() + callbackInfo.getIntervalTime());
+                    callbackInfo.setUpdateTime(System.currentTimeMillis());
+                    LOGGER.debug("interval call method {}", callbackInfo.getMethod());
+                    cronTaskManager.getQueue().offer(callbackInfo);
+                });
+            }
+        } catch (Throwable e) {
+            LOGGER.error(" call method exception:", e.getMessage());
         }
     }
 }

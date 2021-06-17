@@ -1,9 +1,11 @@
 package com.cache.core.build;
 
 import com.cache.core.Cache;
-import com.cache.core.CallbackCache;
+import com.cache.core.Callback;
+import com.cache.core.Executor;
 import com.cache.core.Interceptor;
 import com.cache.core.InvokeChain;
+import com.cache.core.cache.SimpleMemoryCache;
 import com.cache.core.chain.CacheInvokeChain;
 
 import java.lang.reflect.InvocationHandler;
@@ -16,7 +18,8 @@ public class CacheBuilder {
 
 
     public static class Builder {
-        private Cache cache;
+        private Cache cache = new SimpleMemoryCache();
+
         private List<Interceptor> interceptors = new ArrayList<>();
 
         public Builder cache(Cache cache) {
@@ -32,21 +35,14 @@ public class CacheBuilder {
         public Cache build() {
             CacheInvokeChain cacheInvokeChain = new CacheInvokeChain(interceptors);
             SimpleCache simpleCache = new SimpleCache(cache, cacheInvokeChain);
-            Class<?>[] interfaces = cache.getClass().getInterfaces();
-            for(Class currentInterface :interfaces){
-                if(currentInterface == CallbackCache.class){
-                    return (CallbackCache) Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[]{CallbackCache.class}, simpleCache);
-                }else if(currentInterface == Cache.class){
-                    return (Cache) Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[]{Cache.class}, simpleCache);
-                }
-            }
-            return null;
+            return (Cache) Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[]{Cache.class}, simpleCache);
         }
     }
 
-    public static class SimpleCache implements InvocationHandler {
+    public static class SimpleCache<K, V> implements InvocationHandler, Executor<K, V> {
 
-        private Cache cache;
+        private Cache<K, V> cache;
+
         private InvokeChain invokeChain;
 
         SimpleCache(Cache cache, InvokeChain invokeChain) {
@@ -57,8 +53,26 @@ public class CacheBuilder {
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             invokeChain.reuse();
-            return invokeChain.invoke(cache, method, args);
+            return invokeChain.invoke(this, method, args);
         }
 
+        @Override
+        public V get(K key, Callback<K, V> callback) {
+            V v = cache.get(key);
+            if (null == v) {
+                return callback.call(key);
+            }
+            return v;
+        }
+
+        @Override
+        public void put(K key, V value) {
+            cache.put(key, value);
+        }
+
+        @Override
+        public V get(K key) {
+            return cache.get(key);
+        }
     }
 }

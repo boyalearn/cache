@@ -1,9 +1,8 @@
 package com.cache.core.cache;
 
 import com.cache.core.Cache;
-import com.cache.core.Executor;
 
-public class EhCache<K, V> implements Cache<K, V>, Executor {
+public class EhCache<K, V> implements Cache<K, V> {
 
 
     private org.ehcache.Cache<K, V> cache;
@@ -24,4 +23,5 @@ public class EhCache<K, V> implements Cache<K, V>, Executor {
     public V get(K key) {
         return cache.get(key);
     }
+
 }
